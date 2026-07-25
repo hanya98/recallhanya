@@ -1,0 +1,34 @@
+[project]
+name = "recallos-api"
+version = "0.1.0"
+description = "RecallOS FastAPI backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+    "pgvector>=0.3.6",
+    "psycopg2-binary>=2.9.10",
+    "pgvector.sqlalchemy>=0.2.0",
+    "redis>=5.2.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "openai>=1.59.0",
+    "google-generativeai>=0.8.4",
+    "python-jose[cryptography]>=3.3.0",
+    "httpx>=0.28.0",
+    "tenacity>=9.0.0",
+    "structlog>=24.4.0",
+    "python-dateutil>=2.9.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
