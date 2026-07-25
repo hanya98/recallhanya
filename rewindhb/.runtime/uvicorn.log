@@ -1,0 +1,671 @@
+INFO:     Started server process [37318]
+INFO:     Waiting for application startup.
+2026-07-25 13:21:07 [info     ] schema.ready
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54891 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54892 - "GET /readyz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55064 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55064 - "GET /v1/auth/me HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55243 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55277 - "GET /readyz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55441 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55455 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55469 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55471 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55500 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55502 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55524 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55526 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55533 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     127.0.0.1:55535 - "POST /v1/memories HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2692, in app
+    await route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1773, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2747, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1793, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1272, in handle
+    await app(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 479, in app
+    solved_result = await solve_dependencies(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py", line 714, in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/deps.py", line 119, in get_current_user
+    from app.models import User
+ModuleNotFoundError: No module named 'app.models.user'
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [37318]

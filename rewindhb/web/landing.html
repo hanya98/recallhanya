@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RecallOS — Google Search for your own browsing memory</title>
+<meta name="description" content="An AI second brain that quietly remembers everything you browse. Search with words, not filenames." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS — Raycast / Linear visual vocabulary
+     One accent. One neutrals ladder. Mono for tags/code.
+     ============================================================ */
+  :root {
+    --bg:           #0a0a0c;
+    --bg-1:         #0e0e11;
+    --bg-2:         #141418;
+    --bg-3:         #1a1a1f;
+    --surface:      rgba(255,255,255,0.025);
+    --surface-2:    rgba(255,255,255,0.045);
+    --border:       rgba(255,255,255,0.06);
+    --border-2:     rgba(255,255,255,0.10);
+    --ink:          #f5f5f7;
+    --ink-soft:     #a1a1aa;
+    --ink-faint:    #6b6b75;
+    --accent:       #a78bfa;          /* electric violet — the one */
+    --accent-strong:#8b5cf6;
+    --accent-soft:  rgba(167,139,250,0.12);
+    --accent-line:  rgba(167,139,250,0.25);
+    --good:         #34d399;
+    --warn:         #fbbf24;
+    --danger:       #f87171;
+    --radius-sm:    8px;
+    --radius:       14px;
+    --radius-lg:    20px;
+    --shadow-sm:    0 1px 2px rgba(0,0,0,0.4);
+    --shadow:       0 8px 32px rgba(0,0,0,0.4);
+    --shadow-lg:    0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+    --ease:         cubic-bezier(0.16, 1, 0.3, 1);
+    --container:    1200px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.55;
+    font-feature-settings: 'cv11','ss01','ss03';
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Subtle radial backdrop — single source, never gradient soup */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(167,139,250,0.06), transparent 60%),
+      radial-gradient(ellipse 800px 400px at 80% 80%, rgba(139,92,246,0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: 'liga' 0, 'calt' 0; }
+  .container { max-width: var(--container); margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  /* ============================================================
+     NAV
+     ============================================================ */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(10,10,12,0.7);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .nav-logo {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+    display: grid; place-items: center;
+    box-shadow: 0 0 24px rgba(167,139,250,0.4);
+  }
+  .nav-logo svg { width: 14px; height: 14px; }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    transition: all 180ms var(--ease);
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .btn-primary:hover {
+    background: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(255,255,255,0.12);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--border-2);
+  }
+  .btn-ghost:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: #0a0a0c;
+    font-weight: 600;
+  }
+  .btn-accent:hover {
+    background: var(--accent-strong);
+    box-shadow: 0 8px 32px rgba(167,139,250,0.35);
+    transform: translateY(-1px);
+  }
+  .btn-lg { height: 46px; padding: 0 22px; font-size: 15px; border-radius: 12px; }
+
+  /* ============================================================
+     HERO
+     Decide/Learn surface. One centered idea. Spotlight demo card.
+     ============================================================ */
+  .hero {
+    padding: 120px 0 80px;
+    text-align: center;
+    position: relative;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    margin-bottom: 28px;
+  }
+  .hero-eyebrow .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .hero h1 {
+    font-size: clamp(40px, 6.5vw, 76px);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    margin-bottom: 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #b8b8c0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero h1 .accent {
+    background: linear-gradient(180deg, var(--accent) 0%, var(--accent-strong) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: clamp(16px, 1.8vw, 19px);
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin: 0 auto 40px;
+    line-height: 1.5;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-foot {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+  .hero-foot a { color: var(--ink-soft); }
+  .hero-foot a:hover { color: var(--accent); }
+
+  /* HERO — Spotlight preview (real glassmorphism use, one place) */
+  .hero-demo {
+    max-width: 880px;
+    margin: 80px auto 0;
+    position: relative;
+  }
+  .spotlight {
+    background: rgba(20,20,24,0.7);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    text-align: left;
+  }
+  .spotlight-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .spotlight-bar .icon { color: var(--ink-faint); flex-shrink: 0; }
+  .spotlight-bar .query { flex: 1; }
+  .spotlight-bar .kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    padding: 3px 7px;
+    border: 1px solid var(--border-2);
+    border-radius: 5px;
+    background: var(--surface);
+  }
+  .spotlight-bar .cursor {
+    display: inline-block;
+    width: 1px;
+    height: 16px;
+    background: var(--accent);
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: blink 1.1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .spotlight-result {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .spotlight-result:last-child { border-bottom: none; }
+  .result-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .result-favicon {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    background: var(--bg-3);
+    display: grid; place-items: center;
+    font-size: 9px;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .result-favicon.gh { background: #1f2937; color: #fff; }
+  .result-title {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .result-summary {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .result-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+  }
+  .result-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink-soft);
+    transition: all 140ms var(--ease);
+  }
+  .pill:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .pill.primary { background: var(--accent); color: #0a0a0c; border-color: var(--accent); font-weight: 500; }
+
+  .spotlight-section-label {
+    padding: 10px 20px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.015);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .related-list {
+    padding: 6px 0;
+  }
+  .related-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    transition: background 100ms var(--ease);
+    cursor: pointer;
+  }
+  .related-item:hover { background: var(--surface-2); color: var(--ink); }
+  .related-item .related-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+
+  .hero-demo-glow {
+    position: absolute;
+    inset: -40px;
+    background: radial-gradient(ellipse 600px 200px at 50% 50%, rgba(167,139,250,0.18), transparent 60%);
+    filter: blur(40px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     SECTIONS — general
+     ============================================================ */
+  section { padding: 120px 0; position: relative; }
+  .section-eyebrow {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .section-h {
+    font-size: clamp(32px, 4.2vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    margin-bottom: 20px;
+    max-width: 760px;
+  }
+  .section-sub {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    line-height: 1.55;
+  }
+  .section-center { text-align: center; }
+  .section-center .section-h,
+  .section-center .section-sub { margin-left: auto; margin-right: auto; }
+
+  /* ============================================================
+     SECTION 1 — the problem
+     ============================================================ */
+  .problem {
+    background:
+      radial-gradient(ellipse 800px 400px at 50% 0%, rgba(167,139,250,0.04), transparent 60%);
+  }
+
+  /* ============================================================
+     SECTION 2 — examples
+     ============================================================ */
+  .examples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 56px;
+  }
+  .example {
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    transition: all 200ms var(--ease);
+  }
+  .example:hover {
+    border-color: var(--border-2);
+    background: var(--surface-2);
+    transform: translateY(-2px);
+  }
+  .example-query {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .example-query .icon { color: var(--accent); }
+  .example-result {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .example-result .favicon {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    background: var(--bg-3);
+    flex-shrink: 0;
+    display: grid; place-items: center;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+  }
+  .example-result .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-faint); margin-bottom: 4px; }
+  .example-result .title { font-size: 14px; color: var(--ink); font-weight: 500; margin-bottom: 6px; line-height: 1.35; }
+  .example-result .summary { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ============================================================
+     SECTION 3 — context resume demo
+     ============================================================ */
+  .resume-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 32px;
+    margin-top: 64px;
+    align-items: center;
+  }
+  .resume-spotlight .spotlight { box-shadow: var(--shadow); }
+  .resume-cluster { display: flex; flex-direction: column; gap: 12px; }
+  .cluster-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .cluster-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cluster-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: grid; place-items: center;
+    font-size: 12px;
+  }
+  .cluster-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .cluster-resume-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #0a0a0c;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    align-self: flex-start;
+    margin-top: 8px;
+    transition: all 180ms var(--ease);
+  }
+  .cluster-resume-btn:hover { background: var(--accent-strong); box-shadow: 0 8px 24px rgba(167,139,250,0.3); }
+
+  /* ============================================================
+     SECTION 4 — features
+     Grid of four, sharp copy, icon toppers used minimally.
+     ============================================================ */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 56px;
+    overflow: hidden;
+  }
+  .feature {
+    padding: 36px 28px;
+    background: var(--bg);
+  }
+  .feature-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    display: grid; place-items: center;
+    margin-bottom: 20px;
+    color: var(--accent);
+  }
+  .feature-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .feature-desc {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* ============================================================
+     SECTION 5 — privacy
+     ============================================================ */
+  .privacy {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .privacy-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .privacy-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .privacy-list li strong { color: var(--ink); display: block; margin-bottom: 2px; font-weight: 500; }
+  .privacy-list .check {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .privacy-art {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lock-art {
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, var(--accent-soft) 0%, transparent 70%);
+    display: grid; place-items: center;
+    border: 1px solid var(--accent-line);
+  }
+  .lock-art-inner {
+    width: 80px; height: 80px;
+    border-radius: 18px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-2);
+    display: grid; place-items: center;
+    color: var(--accent);
+  }
+
+  /* ============================================================
+     FINAL CTA
+     ============================================================ */
+  .final-cta {
+    text-align: center;
+    padding: 140px 0;
+  }
+  .final-cta .section-h { font-size: clamp(40px, 5.5vw, 64px); margin: 0 auto 16px; }
+  .final-cta .section-sub { margin: 0 auto 36px; }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 0;
+    margin-top: 80px;
+  }
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 32px;
+  }
+  .footer-brand-text { font-size: 13px; color: var(--ink-faint); max-width: 280px; margin-top: 12px; line-height: 1.5; }
+  .footer-col h4 { font-size: 12px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col a { font-size: 13.5px; color: var(--ink-soft); transition: color 120ms var(--ease); }
+  .footer-col a:hover { color: var(--ink); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 800px) {
+    .nav-links { display: none; }
+    .hero { padding: 80px 0 60px; }
+    .resume-grid { grid-template-columns: 1fr; gap: 40px; }
+    .privacy { grid-template-columns: 1fr; gap: 40px; }
+    .privacy-art { display: none; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+    .footer-bottom { flex-direction: column; gap: 8px; align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ NAV ============================ -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <span class="nav-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 10 10"/>
+          <path d="M12 6a6 6 0 1 0 6 6"/>
+          <circle cx="12" cy="12" r="2" fill="white" stroke="none"/>
+        </svg>
+      </span>
+      RecallOS
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#">Docs</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#install" class="btn btn-ghost">Sign in</a>
+      <a href="#install" class="btn btn-primary">Add to Chrome</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================ HERO ============================ -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      Your second brain, indexed
+    </div>
+    <h1>Search the web the way<br/>you <span class="accent">remember</span> it.</h1>
+    <p class="hero-sub">
+      RecallOS is an AI-powered second brain that quietly remembers every useful page you visit — and lets you retrieve it with words, not filenames.
+    </p>
+    <div class="hero-ctas">
+      <a href="#install" class="btn btn-accent btn-lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Add to Chrome — it's free
+      </a>
+      <a href="#how" class="btn btn-ghost btn-lg">See the demo</a>
+    </div>
+    <p class="hero-foot">Already installed? <a href="#">Open dashboard →</a></p>
+
+    <!-- SPOTLIGHT DEMO -->
+    <div class="hero-demo">
+      <div class="hero-demo-glow"></div>
+      <div class="spotlight">
+        <div class="spotlight-bar">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="query mono">react auth repo last week<span class="cursor"></span></span>
+          <span class="kbd">⌘ K</span>
+        </div>
+
+        <div class="spotlight-result">
+          <div class="result-meta">
+            <span class="result-favicon gh">G</span>
+            <span>github.com · 3 days ago · match score 0.89</span>
+          </div>
+          <div class="result-title">nextauthjs/next-auth</div>
+          <div class="result-summary">Authentication for Next.js — drop-in auth library with 200+ OAuth providers, JWT, database sessions, and middleware. MIT licensed.</div>
+          <div class="result-tags">
+            <span class="tag">#auth</span>
+            <span class="tag">#nextjs</span>
+            <span class="tag">#oauth</span>
+            <span class="tag">#opensource</span>
+          </div>
+          <div class="result-actions">
+            <button class="pill primary">Open ↗</button>
+            <button class="pill">Show related ▾</button>
+          </div>
+        </div>
+
+        <div class="spotlight-section-label">Related memories</div>
+        <div class="related-list">
+          <div class="related-item">
+            <span class="related-type">📝 medium</span>
+            <span>"How to add Google login to Next.js 14" — 5 days ago</span>
+          </div>
+          <div class="related-item">
+            <span class="related-type">🎥 youtube</span>
+            <span>NextAuth tutorial for production apps — 6 days ago</span>
+          </div>
+          <div class="related-item">
+            <span class="related-type">💬 so</span>
+            <span>StackOverflow · "JWT in Next.js middleware" — 1 week ago</span>
+          </div>
+        </div>
+
+        <div class="spotlight-section-label">Context resume</div>
+        <div class="related-list">
+          <div class="related-item">
+            <span class="related-type" style="color: var(--accent)">⌘</span>
+            <span><strong style="color: var(--ink)">"Tuesday's auth session"</strong> — 6 tabs ready to reopen</span>
+            <button class="pill primary" style="margin-left: auto">Resume</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ PROBLEM ============================ -->
+<section class="problem" id="how">
+  <div class="container section-center">
+    <div class="section-eyebrow">The browser is a memory leak</div>
+    <h2 class="section-h">You saw it. You just can't find it.</h2>
+    <p class="section-sub">
+      You open fifty tabs a day. You bookmark maybe one. A week later you remember the idea — "the React auth library I was reading about" — but not the URL. Browser history gives you a timestamp. Bookmarks give you a folder. Search engines give you the public web. None of them remember <em>your</em> stream of it.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ EXAMPLES ============================ -->
+<section>
+  <div class="container">
+    <div class="section-center">
+      <div class="section-eyebrow">Type. Find. Done.</div>
+      <h2 class="section-h">Search like you're talking to your memory.</h2>
+    </div>
+    <div class="examples">
+      <div class="example">
+        <div class="example-query">
+          <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          "react auth repo last week"
+        </div>
+        <div class="example-result">
+          <span class="favicon">G</span>
+          <div>
+            <div class="meta">github.com · 3 days ago</div>
+            <div class="title">nextauthjs/next-auth</div>
+            <div class="summary">Auth library for Next.js with 200+ OAuth providers. MIT license. Drop-in middleware.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-query">
+          <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          "that internship email mentioning 50k"
+        </div>
+        <div class="example-result">
+          <span class="favicon" style="background:#1a73e8;color:white;">M</span>
+          <div>
+            <div class="meta">gmail · 12 days ago</div>
+            <div class="title">Re: Summer internship at Stripe</div>
+            <div class="summary">"Hi Aarav, confirming the ₹50,000/month stipend for the 12-week summer role. We'd love to have you start…" </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-query">
+          <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          "pasta recipe with chili flakes"
+        </div>
+        <div class="example-result">
+          <span class="favicon" style="background:#dc2626;color:white;">B</span>
+          <div>
+            <div class="meta">bonappetit.com · last Friday</div>
+            <div class="title">Spicy One-Pot Pasta with Garlic and Chili Flakes</div>
+            <div class="summary">Twenty-minute weeknight pasta with garlic, calabrian chilis, parmesan, and lemon. Serves four.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CONTEXT RESUME ============================ -->
+<section>
+  <div class="container">
+    <div class="section-eyebrow">From a thought to a tab</div>
+    <h2 class="section-h">"Continue my AI research."</h2>
+    <p class="section-sub">No more opening twelve tabs by hand. No more scrolling through browser history. Just: pick up where you left off.</p>
+
+    <div class="resume-grid">
+      <div class="resume-spotlight">
+        <div class="spotlight">
+          <div class="spotlight-bar">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="query mono">continue my ai research<span class="cursor"></span></span>
+            <span class="kbd">↵</span>
+          </div>
+          <div class="spotlight-section-label">Smart collection detected</div>
+          <div class="related-list">
+            <div class="related-item">
+              <span class="related-type" style="color: var(--accent)">⌬</span>
+              <span><strong style="color: var(--ink)">AI Research</strong> — 14 memories across 8 days</span>
+            </div>
+            <div class="related-item">
+              <span class="related-type">📄</span>
+              <span>arxiv.org · "Attention Is All You Need"</span>
+            </div>
+            <div class="related-item">
+              <span class="related-type">🎥</span>
+              <span>youtube · "Andrej Karpathy: Let's build GPT"</span>
+            </div>
+            <div class="related-item">
+              <span class="related-type">🐙</span>
+              <span>github · "huggingface/transformers"</span>
+            </div>
+            <div class="related-item" style="color: var(--ink-faint)">+ 11 more</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="resume-cluster">
+        <div class="cluster-header">
+          <div class="cluster-title">
+            <span class="cluster-icon">⌬</span>
+            AI Research
+          </div>
+          <span class="cluster-count">14 memories · last activity 2h ago</span>
+        </div>
+        <div style="font-size: 13px; color: var(--ink-soft); line-height: 1.5; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;">
+          Papers on transformer architectures, a Karpathy walkthrough, the HuggingFace repo, two blog posts on FlashAttention, and a Notion note you wrote at 1am. All auto-grouped.
+        </div>
+        <button class="cluster-resume-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Resume 6 tabs from Tuesday
+        </button>
+        <div style="font-size: 12px; color: var(--ink-faint); font-family: 'JetBrains Mono', monospace;">
+          arxiv.org · youtube.com · github.com · karpathy.ai · 2 more
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FEATURES ============================ -->
+<section id="features">
+  <div class="container">
+    <div class="section-center">
+      <div class="section-eyebrow">What's in the box</div>
+      <h2 class="section-h">Built around the way you actually browse.</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="feature-title">Semantic search</div>
+        <div class="feature-desc">Find anything by idea, not by keyword. Natural language, hybrid re-ranking, sub-second response.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="feature-title">Smart Collections</div>
+        <div class="feature-desc">Topics surface on their own. No folders, no tags to manage. AI clusters what belongs together.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/></svg>
+        </div>
+        <div class="feature-title">Memory timeline</div>
+        <div class="feature-desc">A calm, dated view of what you've been thinking about. Browse by day, week, or topic.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <div class="feature-title">Context Resume</div>
+        <div class="feature-desc">Reopen every tab from a topic with one click. Pick up exactly where you left off.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PRIVACY ============================ -->
+<section id="privacy">
+  <div class="container">
+    <div class="privacy">
+      <div>
+        <div class="section-eyebrow">Privacy by default</div>
+        <h2 class="section-h">Your memory is yours.</h2>
+        <p class="section-sub">
+          We don't believe in trading your data for product. RecallOS runs on a hard rule: if it's not on your device or your account, we don't have it.
+        </p>
+        <ul class="privacy-list">
+          <li>
+            <span class="check">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <div>
+              <strong>No raw HTML stored.</strong>
+              Only title, URL, AI summary, and tags.
+            </div>
+          </li>
+          <li>
+            <span class="check">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <div>
+              <strong>End-to-end private.</strong>
+              Never shared with other users. Never used for training.
+            </div>
+          </li>
+          <li>
+            <span class="check">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <div>
+              <strong>Pause anytime.</strong>
+              One toggle in the extension popup stops capture instantly.
+            </div>
+          </li>
+          <li>
+            <span class="check">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <div>
+              <strong>One-click delete.</strong>
+              Any memory, any time. Hard-deleted after 30 days.
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="privacy-art">
+        <div class="lock-art">
+          <div class="lock-art-inner">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FINAL CTA ============================ -->
+<section class="final-cta" id="install">
+  <div class="container">
+    <h2 class="section-h">Stop losing what you find.</h2>
+    <p class="section-sub">One click. No account to set up. Sign in when you want sync.</p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="#" class="btn btn-accent btn-lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Add to Chrome — it's free
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <a href="/" class="nav-brand">
+          <span class="nav-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6a6 6 0 1 0 6 6"/><circle cx="12" cy="12" r="2" fill="white" stroke="none"/></svg>
+          </span>
+          RecallOS
+        </a>
+        <p class="footer-brand-text">Google Search for your own browsing memory. Built at a hackathon because we kept losing tabs.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Download</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Docs</a></li>
+          <li><a href="#privacy">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Security</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Twitter</a></li>
+          <li><a href="#">GitHub</a></li>
+          <li><a href="mailto:hello@recallos.com">hello@recallos.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 RecallOS. All rights reserved.</div>
+      <div class="mono">v0.1.0 · MIT</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

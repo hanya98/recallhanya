@@ -1,0 +1,280 @@
+=== RecallOS runtime run started Sat Jul 25 12:52:06 IST 2026 ===
+=== Tooling check ===
+--- python3 ---
+Python 3.13.3
+--- uv ---
+uv 0.11.16 (135a36367 2026-05-21 aarch64-apple-darwin)
+--- node ---
+v22.13.1
+--- npm ---
+10.9.2
+--- pnpm ---
+9.15.0
+--- docker ---
+/bin/bash: line 20: docker: command not found
+MISSING
+--- psql ---
+psql (PostgreSQL) 18.0 (Homebrew)
+--- redis-server ---
+/bin/bash: line 22: redis-server: command not found
+MISSING
+--- pgvector ---
+PostgreSQL 18.0 (Homebrew)
+
+=== Postgres availability ===
+postgresql@18     started         animeshpathak ~/Library/LaunchAgents/homebrew.mxcl.postgresql@18.plist
+
+--- pg_ctl which? ---
+/opt/homebrew/opt/postgresql@18/bin/pg_ctl
+
+--- pg_isready ---
+/tmp:5432 - accepting connections
+
+--- pgvector extension file ---
+not in default extension path
+=== pgvector install check ===
+no pgvector brew package installed
+
+=== Try connecting to postgres ===
+                                                           version                                                            
+------------------------------------------------------------------------------------------------------------------------------
+ PostgreSQL 18.0 (Homebrew) on aarch64-apple-darwin25.0.0, compiled by Apple clang version 17.0.0 (clang-1700.3.19.1), 64-bit
+(1 row)
+
+=== Install pgvector via brew ===
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/libngtcp2_bottle_manifest--1.22.1... (9.7KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/libngtcp2--1.22.1... (393.2KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/llhttp_bottle_manifest--9.4.1... (7.2KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/llhttp--9.4.1... (38.2KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/mongosh_bottle_manifest--2.8.3... (68.5KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/mongosh--2.8.3... (22.6MB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/node_bottle_manifest--26.0.0... (33.4KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/node--26.0.0... (19.0MB)
+Removing: /opt/homebrew/Cellar/openssl@3/3.6.2... (7,627 files, 37.6MB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/openssl@3_bottle_manifest--3.6.2... (12.0KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/openssl@3--3.6.2... (10.9MB)
+Removing: /opt/homebrew/Cellar/sqlite/3.53.1... (13 files, 5.3MB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/sqlite_bottle_manifest--3.53.1... (11.8KB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/sqlite--3.53.1... (2.4MB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/portable-ruby-4.0.5_1.arm64_big_sur.bottle.tar.gz... (12.7MB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/bootsnap/14e9983d8f21ebd1759b5d12e5a0f648a2e5b645d0e27f72867e9cb6262257d9... (1,040 files, 9.3MB)
+Removing: /Users/animeshpathak/Library/Caches/Homebrew/bootsnap/148d3a0082c45793313d4cfa2955969a9805ea8fb6e34e5cf51ee0d39c52a728... (1,045 files, 9.4MB)
+Removing: /Users/animeshpathak/Library/Logs/Homebrew/pcre2... (64B)
+Removing: /Users/animeshpathak/Library/Logs/Homebrew/ripgrep... (64B)
+Removing: /Users/animeshpathak/Library/Logs/Homebrew/opencode... (118B)
+=== pgvector status after brew attempt ===
+/opt/homebrew/Cellar/pgvector/0.8.5/INSTALL_RECEIPT.json
+/opt/homebrew/Cellar/pgvector/0.8.5/LICENSE
+/opt/homebrew/Cellar/pgvector/0.8.5/CHANGELOG.md
+/opt/homebrew/Cellar/pgvector/0.8.5/.brew/pgvector.rb
+/opt/homebrew/Cellar/pgvector/0.8.5/include/postgresql@17/server/extension/vector/sparsevec.h
+/opt/homebrew/Cellar/pgvector/0.8.5/share/postgresql@17/extension/vector.control
+/opt/homebrew/Cellar/pgvector/0.8.5/share/postgresql@18/extension/vector.control
+/opt/homebrew/share/postgresql@17/extension/vector.control
+=== Create recallos DB + load pgvector ===
+CREATE EXTENSION
+CREATE EXTENSION
+                                       List of installed extensions
+   Name   | Version | Default version |   Schema   |                     Description                      
+----------+---------+-----------------+------------+------------------------------------------------------
+ pgcrypto | 1.4     | 1.4             | public     | cryptographic functions
+ plpgsql  | 1.0     | 1.0             | pg_catalog | PL/pgSQL procedural language
+ vector   | 0.8.5   | 0.8.5           | public     | vector data type and ivfflat and hnsw access methods
+(3 rows)
+
+                                       List of installed extensions
+   Name   | Version | Default version |   Schema   |                     Description                      
+----------+---------+-----------------+------------+------------------------------------------------------
+ pgcrypto | 1.4     | 1.4             | public     | cryptographic functions
+ plpgsql  | 1.0     | 1.0             | pg_catalog | PL/pgSQL procedural language
+ vector   | 0.8.5   | 0.8.5           | public     | vector data type and ivfflat and hnsw access methods
+(3 rows)
+
+=== Create API venv ===
+Using CPython 3.13.3 interpreter at: /usr/local/bin/python3.13
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
+--- python in venv ---
+/Users/animeshpathak/rewind/services/api/.venv/bin/python
+Python 3.13.3
+=== uv sync ===
+          val = self.func(instance)
+        File
+      "/Users/animeshpathak/.cache/uv/builds-v0/.tmpgrpIqG/lib/python3.13/site-packages/hatchling/builders/wheel.py",
+      line 281, in default_file_selection_options
+          raise ValueError(message)
+      ValueError: Unable to determine which files to ship
+      inside the wheel using the following heuristics:
+      https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection
+
+      The most likely cause of this is that there is no directory that matches
+      the name of your project (recallos_api).
+
+      At least one file selection option must be defined
+      in the `tool.hatch.build.targets.wheel` table, see:
+      https://hatch.pypa.io/latest/config/build/
+
+      As an example, if you intend to ship a directory named `foo` that
+      resides within a `src` directory located at the root of your project,
+      you can define the following:
+
+      [tool.hatch.build.targets.wheel]
+      packages = ["src/foo"]
+
+
+hint: Build failures usually indicate a problem with the package or the build environment=== uv pip install -e . (retry) ===
+ + six==1.17.0
+ + sniffio==1.3.1
+ + sqlalchemy==2.0.51
+ + starlette==1.3.1
+ + structlog==26.1.0
+ + tenacity==9.1.4
+ + tqdm==4.69.1
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.2
+ + uritemplate==4.2.0
+ + urllib3==2.7.0
+ + uvicorn==0.51.0
+ + uvloop==0.22.1
+ + watchfiles==1.2.0
+ + websockets==16.1.1
+
+=== Try importing main ===
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from app.main import app; print('IMPORT OK')
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/main.py", line 6, in <module>
+    from app.routers import memories, search, collections, graph, settings, auth
+  File "/Users/animeshpathak/rewind/services/api/app/routers/memories.py", line 11, in <module>
+    from app.deps import get_db, get_current_user
+ModuleNotFoundError: No module named 'app.deps'
+
+=== Try importing main ===
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from app.main import app; print('IMPORT OK')
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/animeshpathak/rewind/services/api/app/main.py", line 6, in <module>
+    from app.routers import memories, search, collections, graph, settings, auth
+  File "/Users/animeshpathak/rewind/services/api/app/routers/memories.py", line 12, in <module>
+    from app.models.user import User
+ModuleNotFoundError: No module named 'app.models.user'
+
+=== Try importing main ===
+IMPORT OK
+
+=== Start uvicorn on :8000 (background) ===
+pid=36815
+
+=== uvicorn.log tail ===
+INFO:     Started server process [36815]
+INFO:     Waiting for application startup.
+2026-07-25 13:10:09 [error    ] schema.failed                  error="(sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.PostgresSyntaxError'>: cannot insert multiple commands into a prepared statement\n[SQL: \nCREATE EXTENSION IF NOT EXISTS vector;\nCREATE EXTENSION IF NOT EXISTS pgcrypto;\n\nCREATE TABLE IF NOT EXISTS users (\n  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email           TEXT UNIQUE NOT NULL,\n  display_name    TEXT,\n  avatar_url      TEXT,\n  google_sub      TEXT UNIQUE,\n  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n  last_seen_at    TIMESTAMPTZ,\n  capture_paused  BOOLEAN NOT NULL DEFAULT FALSE,\n  plan            TEXT NOT NULL DEFAULT 'free',\n  embeddings_enabled BOOLEAN NOT NULL DEFAULT TRUE,\n  summary_enabled    BOOLEAN NOT NULL DEFAULT TRUE,\n  dedup_window_seconds INT NOT NULL DEFAULT 60\n);\n\nCREATE TABLE IF NOT EXISTS memories (\n  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  url             TEXT NOT NULL,\n  domain          TEXT,\n  canonical_url   TEXT,\n  title           TEXT NOT NULL,\n  favicon_url     TEXT,\n  excerpt_raw     TEXT,\n  excerpt_clean   TEXT,\n  summary         TEXT,\n  category        TEXT,\n  tags            TEXT[],\n  embedding       vector(1536),\n  embedding_model TEXT NOT NULL DEFAULT 'text-embedding-3-small',\n  content_type    TEXT,\n  word_count      INT,\n  language        TEXT,\n  read_time_sec   INT,\n  visited_at      TIMESTAMPTZ NOT NULL,\n  indexed_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n  processing_status TEXT NOT NULL DEFAULT 'ready',\n  pinned          BOOLEAN NOT NULL DEFAULT FALSE,\n  deleted_at      TIMESTAMPTZ\n);\n\nCREATE INDEX IF NOT EXISTS idx_memories_user_visited ON memories(user_id, visited_at DESC);\nCREATE INDEX IF NOT EXISTS idx_memories_user_status  ON memories(user_id, processing_status);\nCREATE INDEX IF NOT EXISTS idx_memories_user_domain  ON memories(user_id, domain);\n\nCREATE TABLE IF NOT EXISTS collections (\n  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  slug            TEXT NOT NULL,\n  title           TEXT NOT NULL,\n  description     TEXT,\n  color           TEXT,\n  icon            TEXT,\n  source          TEXT NOT NULL DEFAULT 'manual',\n  cluster_method  TEXT,\n  centroid        vector(1536),\n  member_count    INT NOT NULL DEFAULT 0,\n  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n  last_activity_at TIMESTAMPTZ,\n  UNIQUE(user_id, slug)\n);\nCREATE INDEX IF NOT EXISTS idx_collections_user ON collections(user_id, last_activity_at DESC);\n\nCREATE TABLE IF NOT EXISTS collection_memories (\n  collection_id   UUID NOT NULL REFERENCES collections(id) ON DELETE CASCADE,\n  memory_id       UUID NOT NULL REFERENCES memories(id) ON DELETE CASCADE,\n  relevance_score REAL,\n  added_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n  PRIMARY KEY (collection_id, memory_id)\n);\nCREATE INDEX IF NOT EXISTS idx_cm_memory ON collection_memories(memory_id);\n\nCREATE TABLE IF NOT EXISTS memory_relations (\n  source_id       UUID NOT NULL REFERENCES memories(id) ON DELETE CASCADE,\n  target_id       UUID NOT NULL REFERENCES memories(id) ON DELETE CASCADE,\n  weight          REAL NOT NULL,\n  relation_type   TEXT NOT NULL DEFAULT 'similar',\n  computed_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n  PRIMARY KEY (source_id, target_id)\n);\nCREATE INDEX IF NOT EXISTS idx_mr_target ON memory_relations(target_id);\n\nCREATE TABLE IF NOT EXISTS search_history (\n  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  query           TEXT NOT NULL,\n  result_count    INT,\n  clicked_memory_id UUID,\n  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);\nCREATE INDEX IF NOT EXISTS idx_search_user_recent ON search_history(user_id, created_at DESC);\n\nCREATE TABLE IF NOT EXISTS user_settings (\n  user_id         UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,\n  blocklist_domains TEXT[] NOT NULL DEFAULT '{}',\n  pause_until     TIMESTAMPTZ,\n  theme           TEXT NOT NULL DEFAULT 'dark',\n  capture_min_words INT NOT NULL DEFAULT 50,\n  capture_max_per_day INT NOT NULL DEFAULT 500,\n  capture_categories TEXT[] NOT NULL DEFAULT ARRAY['repo','article','video','doc','recipe','paper','social','forum','news','shopping','email','other'],\n  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);\n\nCREATE TABLE IF NOT EXISTS sessions (\n  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  topic           TEXT,\n  started_at      TIMESTAMPTZ NOT NULL,\n  ended_at        TIMESTAMPTZ,\n  memory_ids      UUID[] NOT NULL DEFAULT '{}'\n);\nCREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id, started_at DESC);\n]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+
+=== healthz ===
+{"ok":true}
+=== readyz ===
+{"ok":true}
+
+=== Start uvicorn on :8000 (background) ===
+pid=36867
+
+=== uvicorn.log tail ===
+INFO:     Started server process [36867]
+INFO:     Waiting for application startup.
+2026-07-25 13:10:39 [info     ] schema.ready
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+
+=== healthz ===
+{"ok":true}
+=== readyz ===
+{"ok":true}
+
+============================================================
+RecallOS API end-to-end smoke test
+User: 40094e44-6716-45d7-b200-19323357b39f
+============================================================
+
+[1] GET /healthz  → 200  {'ok': True}
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/.runtime/seed_and_test.py", line 194, in <module>
+    sys.exit(asyncio.run(main()))
+             ~~~~~~~~~~~^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/animeshpathak/rewind/.runtime/seed_and_test.py", line 110, in main
+    print(f"[2] GET /v1/auth/me  → {r.status_code}  email={r.json().get('email')}")
+                                                           ~~~~~~^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/httpx/_models.py", line 832, in json
+    return jsonlib.loads(self.content, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+=== Start uvicorn on :8000 (background) ===
+pid=37318
+
+=== uvicorn.log tail ===
+INFO:     Started server process [37318]
+INFO:     Waiting for application startup.
+2026-07-25 13:21:07 [info     ] schema.ready
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+
+=== healthz ===
+{"ok":true}
+=== readyz ===
+{"ok":true}
+
+============================================================
+RecallOS API end-to-end smoke test
+User: bc7574ce-1052-4fe9-ba07-ac8e25b10065
+============================================================
+
+[1] GET /healthz  → 200  {'ok': True}
+Traceback (most recent call last):
+  File "/Users/animeshpathak/rewind/.runtime/seed_and_test.py", line 194, in <module>
+    sys.exit(asyncio.run(main()))
+             ~~~~~~~~~~~^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/animeshpathak/rewind/.runtime/seed_and_test.py", line 110, in main
+    print(f"[2] GET /v1/auth/me  → {r.status_code}  email={r.json().get('email')}")
+                                                           ~~~~~~^^
+  File "/Users/animeshpathak/rewind/services/api/.venv/lib/python3.13/site-packages/httpx/_models.py", line 832, in json
+    return jsonlib.loads(self.content, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecallOS</title>
+  <style>
+    :root {
+      --bg: #0a0a0c;
+      --surface: #141418;
+      --surface-hover: #1a1a20;
+      --border: rgba(255, 255, 255, 0.08);
+      --ink: #f5f5f7;
+      --ink-soft: #a1a1aa;
+      --ink-faint: #6b6b75;
+      --accent: #a78bfa;
+      --accent-strong: #8b5cf6;
+      --accent-soft: rgba(167, 139, 250, 0.12);
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 340px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--ink);
+      padding: 16px;
+      line-height: 1.4;
+      user-select: none;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0a0a0c;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+    }
+    .brand-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+    .status-dot.paused {
+      background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+    .status-dot.offline {
+      background: var(--red);
+      box-shadow: 0 0 6px var(--red);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .last-capture-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .last-capture-url {
+      font-size: 11px;
+      color: var(--ink-faint);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .last-capture-time {
+      font-size: 10px;
+      color: var(--accent);
+    }
+    .config-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .config-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: var(--ink);
+      font-size: 11px;
+      outline: none;
+    }
+    .config-input:focus {
+      border-color: var(--accent);
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #0a0a0c;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    }
+    .btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--ink-soft);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-hover);
+      color: var(--ink);
+    }
+    .btn-sm {
+      width: auto;
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .footer {
+      font-size: 10px;
+      color: var(--ink-faint);
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">R</div>
+      <div class="brand-name">RecallOS</div>
+    </div>
+    <div class="status-pill">
+      <span id="status-dot" class="status-dot"></span>
+      <span id="status-text">Active</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>Last Capture</span>
+      <span id="capture-count" style="color: var(--ink-soft); font-weight: normal;"></span>
+    </div>
+    <div id="last-capture-container">
+      <div id="last-capture-title" class="last-capture-title">No memory captured yet</div>
+      <div id="last-capture-url" class="last-capture-url">Visit pages to auto-capture</div>
+      <div id="last-capture-time" class="last-capture-time"></div>
+    </div>
+  </div>
+
+  <div class="actions-grid">
+    <button id="btn-toggle-pause" class="btn btn-secondary">Pause Capture</button>
+    <button id="btn-capture-now" class="btn btn-secondary">Capture Page</button>
+  </div>
+
+  <button id="btn-open-spotlight" class="btn btn-primary">
+    <span>Open Spotlight</span>
+    <span style="font-size: 10px; opacity: 0.8; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;">⌘K</span>
+  </button>
+
+  <div class="card" style="margin-bottom: 0;">
+    <div class="card-title">Backend API Endpoint</div>
+    <div class="config-group">
+      <input type="text" id="api-url-input" class="config-input" value="http://localhost:8000" placeholder="http://localhost:8000">
+      <button id="btn-save-api" class="btn btn-secondary btn-sm">Save</button>
+    </div>
+  </div>
+
+  <div class="footer">RecallOS v0.1.0 · Autonomous Browsing Memory</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

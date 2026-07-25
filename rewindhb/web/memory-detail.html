@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Memory · Attention Is All You Need · RecallOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #0a0a0c;
+    --bg-1:         #0e0e11;
+    --bg-2:         #141418;
+    --bg-3:         #1a1a1f;
+    --surface:      rgba(255,255,255,0.025);
+    --surface-2:    rgba(255,255,255,0.045);
+    --border:       rgba(255,255,255,0.06);
+    --border-2:     rgba(255,255,255,0.10);
+    --ink:          #f5f5f7;
+    --ink-soft:     #a1a1aa;
+    --ink-faint:    #6b6b75;
+    --accent:       #a78bfa;
+    --accent-strong:#8b5cf6;
+    --accent-soft:  rgba(167,139,250,0.12);
+    --accent-line:  rgba(167,139,250,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* ============================================================
+     LAYOUT — sidebar + main
+     ============================================================ */
+  .app {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR (compact, same vocab) */
+  .sidebar {
+    background: var(--bg-1);
+    border-right: 1px solid var(--border);
+    padding: 16px 12px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 8px 16px;
+    font-weight: 600; letter-spacing: -0.01em;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .brand .logo {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    display: grid; place-items: center;
+    box-shadow: 0 0 16px rgba(167,139,250,0.3);
+  }
+  .brand .logo svg { width: 12px; height: 12px; }
+  .nav-section { margin-bottom: 18px; }
+  .nav-section-title {
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 4px 8px 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-bottom: 1px;
+    transition: background 120ms ease, color 120ms ease;
+  }
+  .nav-item:hover { background: var(--surface); color: var(--ink); }
+  .nav-item.active { background: var(--surface-2); color: var(--ink); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-item .badge {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+  }
+
+  /* ============================================================
+     MAIN
+     ============================================================ */
+  .main { min-width: 0; }
+
+  /* TOPBAR */
+  .topbar {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(14,14,17,0.6);
+    backdrop-filter: blur(20px);
+    display: flex; align-items: center;
+    padding: 0 32px;
+    gap: 16px;
+    position: sticky; top: 0;
+    z-index: 10;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px 6px 6px;
+    border-radius: 7px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    transition: all 120ms ease;
+  }
+  .back-btn:hover { background: var(--surface-2); color: var(--ink); }
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--ink-soft);
+  }
+  .breadcrumb .current { color: var(--ink); font-weight: 500; }
+  .breadcrumb-sep { color: var(--ink-faint); }
+  .topbar-actions { margin-left: auto; display: flex; gap: 4px; }
+  .icon-btn {
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    border-radius: 7px;
+    color: var(--ink-soft);
+    transition: all 120ms ease;
+  }
+  .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+
+  /* ============================================================
+     CONTENT
+     ============================================================ */
+  .content {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 56px 48px 100px;
+  }
+
+  /* HEADER */
+  .mem-head {
+    margin-bottom: 40px;
+  }
+  .mem-source {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .mem-favicon {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: #dc2626;
+    color: white;
+    display: grid; place-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .mem-source .url {
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 120ms ease;
+  }
+  .mem-source .url:hover { color: var(--accent); }
+  .mem-cat-pill {
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(34,211,238,0.10);
+    color: #22d3ee;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .mem-source .dot { color: var(--ink-faint); }
+
+  .mem-title {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .mem-meta-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .mem-meta-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ACTION BAR */
+  .action-bar {
+    display: flex;
+    gap: 8px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 500;
+    border: 1px solid var(--border-2);
+    color: var(--ink-soft);
+    transition: all 140ms ease;
+  }
+  .btn:hover { background: var(--surface-2); color: var(--ink); }
+  .btn.primary {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+    font-weight: 600;
+  }
+  .btn.primary:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,255,255,0.1); }
+  .btn.accent {
+    background: var(--accent);
+    color: #0a0a0c;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .btn.accent:hover { background: var(--accent-strong); }
+  .btn.ghost { background: transparent; border-color: var(--border); }
+  .btn .kbd {
+    margin-left: 6px;
+    padding: 1px 5px;
+    border: 1px solid var(--border-2);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    background: var(--surface);
+  }
+  .btn-spacer { flex: 1; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 48px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .section-title .line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* AI SUMMARY CARD */
+  .summary-card {
+    position: relative;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, var(--accent-soft), rgba(167,139,250,0.02));
+    border: 1px solid var(--accent-line);
+    border-radius: 14px;
+  }
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 24px;
+    bottom: 24px;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+  .summary-card .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .summary-card p {
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.6;
+    letter-spacing: -0.005em;
+  }
+
+  /* BODY EXCERPT */
+  .excerpt {
+    padding: 24px 28px;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-height: 280px;
+    overflow: hidden;
+    position: relative;
+  }
+  .excerpt::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(180deg, transparent, var(--bg-1));
+    pointer-events: none;
+  }
+  .excerpt .show-more {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
+  /* TAGS */
+  .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+    transition: all 120ms ease;
+    cursor: pointer;
+  }
+  .tag:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+
+  /* RELATED MEMORIES */
+  .related-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .related-card {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    align-items: center;
+    cursor: pointer;
+    transition: all 140ms ease;
+  }
+  .related-card:hover {
+    background: var(--surface-2);
+    border-color: var(--border-2);
+    transform: translateX(2px);
+  }
+  .related-card .ri {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    display: grid; place-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .related-card .r-title {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .related-card .r-summary {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+    margin-bottom: 6px;
+  }
+  .related-card .r-meta {
+    display: flex;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .related-card .r-meta .sim { color: var(--accent); }
+  .related-card .open-mini {
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    transition: all 120ms ease;
+  }
+  .related-card:hover .open-mini { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+
+  /* CONTEXT RESUME block */
+  .resume-block {
+    padding: 20px 22px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .resume-block .icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    color: #0a0a0c;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .resume-block .info { flex: 1; min-width: 0; }
+  .resume-block .info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .resume-block .info p {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .resume-block .urls {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    flex-wrap: wrap;
+  }
+  .resume-block .urls .u {
+    padding: 1px 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+
+  /* EMBED INFO (small metadata grid) */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .meta-cell {
+    padding: 14px 16px;
+    background: var(--bg);
+  }
+  .meta-cell .l {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .meta-cell .v {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  @media (max-width: 800px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .content { padding: 32px 20px; }
+    .mem-title { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============================ SIDEBAR ============================ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6a6 6 0 1 0 6 6"/><circle cx="12" cy="12" r="2" fill="white" stroke="none"/></svg>
+      </span>
+      RecallOS
+    </div>
+
+    <div class="nav-section">
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Timeline
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        All memories
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Graph
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Smart Collections</div>
+      <a href="#" class="nav-item active" style="color: var(--accent); background: var(--accent-soft);">
+        <span style="width:8px;height:8px;border-radius:2px;background:var(--accent);"></span>
+        AI Research
+      </a>
+      <a href="#" class="nav-item">
+        <span style="width:8px;height:8px;border-radius:2px;background:#60a5fa;"></span>
+        Dev Tools
+      </a>
+      <a href="#" class="nav-item">
+        <span style="width:8px;height:8px;border-radius:2px;background:#fbbf24;"></span>
+        Recipes
+      </a>
+      <a href="#" class="nav-item">
+        <span style="width:8px;height:8px;border-radius:2px;background:#818cf8;"></span>
+        Internship Search
+      </a>
+    </div>
+  </aside>
+
+  <!-- ============================ MAIN ============================ -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back
+      </button>
+      <div class="breadcrumb">
+        <span>AI Research</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="current">Attention Is All You Need</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Share">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button class="icon-btn" title="More">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- HEADER -->
+      <div class="mem-head">
+        <div class="mem-source">
+          <div class="mem-favicon">A</div>
+          <a href="#" class="url">arxiv.org/abs/1706.03762</a>
+          <span class="dot">·</span>
+          <span class="mem-cat-pill">paper</span>
+        </div>
+        <h1 class="mem-title">Attention Is All You Need</h1>
+        <div class="mem-meta-row">
+          <span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Indexed today · 9:42 AM
+          </span>
+          <span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+            English
+          </span>
+          <span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            11 pages
+          </span>
+          <span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            17,432 citations
+          </span>
+        </div>
+      </div>
+
+      <!-- ACTION BAR -->
+      <div class="action-bar">
+        <button class="btn primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open original
+          <span class="kbd">↵</span>
+        </button>
+        <button class="btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          Pin
+        </button>
+        <button class="btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg>
+          Re-capture
+        </button>
+        <button class="btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          Edit tags
+        </button>
+        <div class="btn-spacer"></div>
+        <button class="btn ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+      </div>
+
+      <!-- AI SUMMARY -->
+      <div class="section">
+        <div class="section-title">
+          <span>AI Summary</span>
+          <span class="line"></span>
+          <span style="text-transform: none; letter-spacing: 0; font-weight: 400; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-faint);">Gemini 2.0 Flash</span>
+        </div>
+        <div class="summary-card">
+          <div class="label">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.07 7.07l4.24 4.24"/></svg>
+            RecallOS summary
+          </div>
+          <p>
+            The original transformer paper from Vaswani et al. (Google Brain, 2017). Introduces multi-head self-attention as a complete replacement for recurrence and convolutions in sequence modeling. Achieves state-of-the-art on WMT 2014 EN-DE and EN-FR translation with parallelizable training and significantly less compute.
+            <br/><br/>
+            Key insight: <strong style="color: var(--ink)">attention alone is enough</strong> — no RNN, no CNN. This single observation unlocked the entire modern LLM era.
+          </p>
+        </div>
+      </div>
+
+      <!-- BODY EXCERPT -->
+      <div class="section">
+        <div class="section-title">
+          <span>Excerpt</span>
+          <span class="line"></span>
+          <span style="text-transform: none; letter-spacing: 0; font-weight: 400; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-faint);">first 4,000 chars</span>
+        </div>
+        <div class="excerpt">
+          <p>
+            The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.
+            <br/><br/>
+            Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. The Transformer follows the encoder-decoder structure using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder…
+          </p>
+          <button class="btn show-more" style="font-size: 12px; padding: 6px 14px; height: auto;">
+            Show full excerpt ↓
+          </button>
+        </div>
+      </div>
+
+      <!-- TAGS -->
+      <div class="section">
+        <div class="section-title">
+          <span>Tags</span>
+          <span class="line"></span>
+          <span style="text-transform: none; letter-spacing: 0; font-weight: 400; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-faint);">auto-generated · click to edit</span>
+        </div>
+        <div class="tags-row">
+          <span class="tag">#transformers</span>
+          <span class="tag">#attention</span>
+          <span class="tag">#deep-learning</span>
+          <span class="tag">#nlp</span>
+          <span class="tag">#google-brain</span>
+          <span class="tag">#architecture</span>
+          <span class="tag">#paper</span>
+        </div>
+      </div>
+
+      <!-- CONTEXT RESUME -->
+      <div class="section">
+        <div class="section-title">
+          <span>Context Resume</span>
+          <span class="line"></span>
+        </div>
+        <div class="resume-block">
+          <div class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <div class="info">
+            <h4>Continue your AI Research session</h4>
+            <p>6 tabs from Tuesday 8:14 PM, clustered by topic and tag overlap. One click reopens everything.</p>
+            <div class="urls">
+              <span class="u">arxiv.org/1706.03762</span>
+              <span class="u">youtube.com/karpathy-gpt</span>
+              <span class="u">github.com/huggingface</span>
+              <span class="u">+3 more</span>
+            </div>
+          </div>
+          <button class="btn accent">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Resume 6 tabs
+          </button>
+        </div>
+      </div>
+
+      <!-- RELATED -->
+      <div class="section">
+        <div class="section-title">
+          <span>Related memories</span>
+          <span class="line"></span>
+          <span style="text-transform: none; letter-spacing: 0; font-weight: 400; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-faint);">5 by semantic similarity</span>
+        </div>
+        <div class="related-list">
+          <div class="related-card">
+            <div class="ri" style="background:rgba(96,165,250,0.15); color:#60a5fa;">G</div>
+            <div>
+              <div class="r-title">huggingface/transformers</div>
+              <div class="r-summary">State-of-the-art ML for PyTorch, TensorFlow, and JAX. Implements the Transformer architecture from "Attention Is All You Need" with 200+ model variants.</div>
+              <div class="r-meta">
+                <span>github.com</span>
+                <span>·</span>
+                <span>2 days ago</span>
+                <span>·</span>
+                <span class="sim">similarity 0.94</span>
+              </div>
+            </div>
+            <button class="open-mini">Open →</button>
+          </div>
+
+          <div class="related-card">
+            <div class="ri" style="background:rgba(248,113,113,0.15); color:#f87171;">▶</div>
+            <div>
+              <div class="r-title">[1hr 23min] Let's build GPT: from scratch, in code, spelled out.</div>
+              <div class="r-summary">Andrej Karpathy walks through building a GPT from scratch. The clearest explainer of self-attention I've found — directly inspired by this paper.</div>
+              <div class="r-meta">
+                <span>youtube.com</span>
+                <span>·</span>
+                <span>1 week ago</span>
+                <span>·</span>
+                <span class="sim">similarity 0.91</span>
+              </div>
+            </div>
+            <button class="open-mini">Open →</button>
+          </div>
+
+          <div class="related-card">
+            <div class="ri" style="background:rgba(34,211,238,0.15); color:#22d3ee;">A</div>
+            <div>
+              <div class="r-title">FlashAttention: Fast Transformer Training with Long Sequences</div>
+              <div class="r-summary">IO-aware exact attention algorithm that's 2-4x faster than baseline. Cites this paper as the foundation; addresses the quadratic memory bottleneck that limits context length.</div>
+              <div class="r-meta">
+                <span>arxiv.org</span>
+                <span>·</span>
+                <span>3 days ago</span>
+                <span>·</span>
+                <span class="sim">similarity 0.87</span>
+              </div>
+            </div>
+            <button class="open-mini">Open →</button>
+          </div>
+
+          <div class="related-card">
+            <div class="ri" style="background:rgba(192,132,252,0.15); color:#c084fc;">📝</div>
+            <div>
+              <div class="r-title">"What I learned shipping LangGraph agents to 1000 users"</div>
+              <div class="r-summary">Practical lessons on persistence, retry logic, and human-in-the-loop. Argues against autonomous loops in favor of workflow-shaped agents. Worth re-reading before next architecture review.</div>
+              <div class="r-meta">
+                <span>medium.com</span>
+                <span>·</span>
+                <span>2 days ago</span>
+                <span>·</span>
+                <span class="sim">similarity 0.73</span>
+              </div>
+            </div>
+            <button class="open-mini">Open →</button>
+          </div>
+
+          <div class="related-card">
+            <div class="ri" style="background:rgba(96,165,250,0.15); color:#60a5fa;">N</div>
+            <div>
+              <div class="r-title">nextauthjs/next-auth</div>
+              <div class="r-summary">Auth library for Next.js — uses JWTs, sessions, and middleware. The recommended pattern for auth on top of transformer-era LLM apps.</div>
+              <div class="r-meta">
+                <span>github.com</span>
+                <span>·</span>
+                <span>3 days ago</span>
+                <span>·</span>
+                <span class="sim" style="color: var(--ink-faint);">similarity 0.42</span>
+              </div>
+            </div>
+            <button class="open-mini">Open →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- METADATA GRID -->
+      <div class="section">
+        <div class="section-title">
+          <span>Index metadata</span>
+          <span class="line"></span>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-cell"><div class="l">Memory ID</div><div class="v">...</div></div>
+          <div class="meta-cell"><div class="l">Embedding</div><div class="v">1536-dim</div></div>
+          <div class="meta-cell"><div class="l">Model</div><div class="v">text-emb-3-s</div></div>
+          <div class="meta-cell"><div class="l">Category</div><div class="v">web</div></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="memory-detail.js"></script>
+</body>
+</html>

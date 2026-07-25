@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spotlight · RecallOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #0a0a0c;
+    --bg-1:         #0e0e11;
+    --bg-2:         #141418;
+    --bg-3:         #1a1a1f;
+    --surface:      rgba(255,255,255,0.04);
+    --surface-2:    rgba(255,255,255,0.06);
+    --border:       rgba(255,255,255,0.07);
+    --border-2:     rgba(255,255,255,0.12);
+    --ink:          #f5f5f7;
+    --ink-soft:     #a1a1aa;
+    --ink-faint:    #6b6b75;
+    --accent:       #a78bfa;
+    --accent-strong:#8b5cf6;
+    --accent-soft:  rgba(167,139,250,0.12);
+    --accent-line:  rgba(167,139,250,0.28);
+    --repo:         #60a5fa;
+    --article:      #c084fc;
+    --video:        #f87171;
+    --doc:          #34d399;
+    --recipe:       #fbbf24;
+    --paper:        #22d3ee;
+    --social:       #f472b6;
+    --forum:        #a3e635;
+    --email:        #818cf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+    position: relative;
+  }
+  /* backdrop */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 800px 600px at 50% 30%, rgba(167,139,250,0.10), transparent 60%),
+      radial-gradient(ellipse 1000px 600px at 50% 100%, rgba(0,0,0,0.6), transparent 60%),
+      linear-gradient(180deg, rgba(10,10,12,0.85), rgba(10,10,12,0.95));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: -1;
+  }
+  /* faux content underneath the modal, for context */
+  .bg-content {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .bg-content .faux-row {
+    height: 60px;
+    border-bottom: 1px solid var(--border);
+    padding: 0 60px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--ink-faint);
+    font-size: 12px;
+    opacity: 0.4;
+  }
+  .faux-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 56px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(20,20,24,0.5);
+    backdrop-filter: blur(20px);
+    display: flex; align-items: center; padding: 0 24px;
+    z-index: -2;
+  }
+  .faux-bar .url {
+    width: 100%;
+    height: 32px;
+    background: var(--bg-2);
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 14px;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* ============================ SPOTLIGHT MODAL ============================ */
+  .spotlight {
+    width: 720px;
+    max-width: 92vw;
+    background: rgba(18,18,22,0.92);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid var(--border-2);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 32px 80px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 0 60px rgba(167,139,250,0.10);
+    animation: spotIn 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes spotIn {
+    from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* SEARCH BAR */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-bar svg.icon { color: var(--ink-soft); flex-shrink: 0; }
+  .search-bar input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .search-bar input::placeholder { color: var(--ink-faint); }
+  .search-bar .esc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 3px 7px;
+    border: 1px solid var(--border-2);
+    border-radius: 5px;
+    color: var(--ink-faint);
+    background: var(--surface);
+  }
+  .search-bar .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    margin-right: 6px;
+  }
+  .live-indicator .pulse {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  /* FILTER CHIPS below search */
+  .filter-chips {
+    display: flex;
+    gap: 6px;
+    padding: 10px 22px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.015);
+    overflow-x: auto;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    background: transparent;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    transition: all 120ms ease;
+  }
+  .chip:hover { color: var(--ink-soft); border-color: var(--border-2); }
+  .chip.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+
+  /* TOP MATCH */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .section-label .meta {
+    margin-left: auto;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+
+  .top-match {
+    margin: 0 16px 8px;
+    padding: 18px;
+    border: 1px solid var(--accent-line);
+    background: linear-gradient(135deg, var(--accent-soft), rgba(167,139,250,0.04));
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: all 160ms ease;
+  }
+  .top-match::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-line), transparent);
+    z-index: -1;
+    opacity: 0.5;
+  }
+  .top-match:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .top-match .favicon-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+  }
+  .favicon-row .favicon {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: #1f2937;
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+  .favicon-row .badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: #0a0a0c;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+  .top-match .title {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .top-match .summary {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+  .top-match .tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+  }
+  .tag.cat {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  .top-match .actions {
+    display: flex;
+    gap: 8px;
+  }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink-soft);
+    transition: all 120ms ease;
+  }
+  .action-btn:hover { background: var(--surface-2); color: var(--ink); }
+  .action-btn.primary {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+    font-weight: 500;
+  }
+  .action-btn.primary:hover { background: #fff; }
+
+  /* RESULT LIST (related) */
+  .results {
+    padding: 6px 16px 12px;
+  }
+  .result {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    align-items: center;
+    cursor: pointer;
+    transition: background 80ms ease;
+  }
+  .result:hover, .result.active {
+    background: var(--surface-2);
+  }
+  .result .r-icon {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: var(--bg-3);
+    display: grid; place-items: center;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .result .r-icon.repo { background: rgba(96,165,250,0.15); color: var(--repo); }
+  .result .r-icon.video { background: rgba(248,113,113,0.15); color: var(--video); }
+  .result .r-icon.doc { background: rgba(52,211,153,0.15); color: var(--doc); }
+  .result .r-icon.forum { background: rgba(163,230,53,0.15); color: var(--forum); }
+  .result .r-icon.article { background: rgba(192,132,252,0.15); color: var(--article); }
+  .result .r-icon.recipe { background: rgba(251,191,36,0.15); color: var(--recipe); }
+
+  .result .r-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    margin-bottom: 2px;
+  }
+  .result .r-title {
+    font-size: 13.5px;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .result .r-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  .result .r-kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    padding: 2px 6px;
+    border: 1px solid var(--border-2);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+
+  /* SESSION RESUME BLOCK */
+  .session-resume {
+    margin: 4px 16px 16px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(139,92,246,0.03));
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .session-resume .icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #0a0a0c;
+    display: grid; place-items: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .session-resume .info { min-width: 0; }
+  .session-resume .info h4 {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .session-resume .info p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .session-resume .resume-btn {
+    padding: 7px 12px;
+    background: var(--accent);
+    color: #0a0a0c;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 120ms ease;
+    flex-shrink: 0;
+  }
+  .session-resume .resume-btn:hover {
+    background: var(--accent-strong);
+    box-shadow: 0 4px 16px rgba(167,139,250,0.3);
+  }
+
+  /* FOOTER HINTS */
+  .foot-hints {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 22px;
+    border-top: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+  }
+  .foot-hints .hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .foot-hints .kbd {
+    padding: 2px 5px;
+    border: 1px solid var(--border-2);
+    border-radius: 3px;
+    background: var(--surface);
+  }
+  .foot-hints .right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-faint);
+  }
+  .foot-hints .right .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<!-- Faux background — a browser tab "behind" the spotlight -->
+<div class="bg-content">
+  <div class="faux-bar"><div class="url">recallos.com/dashboard</div></div>
+  <div class="faux-row">Today · 12 memories</div>
+  <div class="faux-row">AI Research · transformer architectures</div>
+  <div class="faux-row">9:42 AM · Attention Is All You Need</div>
+  <div class="faux-row">11:15 AM · nextauthjs/next-auth</div>
+  <div class="faux-row">1:08 PM · Let's build GPT — Karpathy</div>
+  <div class="faux-row">2:30 PM · Stripe internship offer</div>
+</div>
+
+<div class="spotlight">
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar">
+    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" placeholder="Search your memory with natural words..." autofocus />
+    <div class="live-indicator"><span class="pulse"></span>live</div>
+    <span class="esc">esc</span>
+  </div>
+
+  <!-- FILTER CHIPS -->
+  <div class="filter-chips">
+    <span class="chip active">All</span>
+    <span class="chip">Repos</span>
+    <span class="chip">Articles</span>
+    <span class="chip">Videos</span>
+    <span class="chip">Last 7 days</span>
+    <span class="chip">Last 30 days</span>
+  </div>
+
+  <!-- TOP MATCH -->
+  <div class="section-label">
+    <span>★ Top match</span>
+    <span class="meta">live search</span>
+  </div>
+  <div class="top-match">
+    <div class="favicon-row">
+      <span class="favicon" style="background:#1f2937;color:white;">R</span>
+      <span>RecallOS</span>
+      <span class="badge">1.0</span>
+    </div>
+    <div class="title">Searching memories...</div>
+    <div class="summary">Type to search your captured memories.</div>
+    <div class="tags">
+      <span class="tag cat">search</span>
+    </div>
+    <div class="actions">
+      <button class="action-btn primary">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Open
+      </button>
+    </div>
+  </div>
+
+  <!-- RELATED -->
+  <div class="section-label">
+    <span>Related memories</span>
+    <span class="meta">0 matches</span>
+  </div>
+  <div class="results"></div>
+
+  <!-- SESSION RESUME -->
+  <div class="session-resume" style="display:none;">
+    <div class="icon">⌘</div>
+    <div class="info">
+      <h4>Context Resume</h4>
+      <p></p>
+    </div>
+    <button class="resume-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Resume all
+    </button>
+  </div>
+
+  <!-- FOOT HINTS -->
+  <div class="foot-hints">
+    <div class="hint"><span class="kbd">↑↓</span> navigate</div>
+    <div class="hint"><span class="kbd">↵</span> open</div>
+    <div class="right">
+      <span class="dot"></span>
+      <span>Loading indexed memories...</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="spotlight.js"></script>
+</body>
+</html>
